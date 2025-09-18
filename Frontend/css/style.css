@@ -33,6 +33,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  overflow: hidden;
 }
 
 /* Loader animation */
@@ -604,7 +605,7 @@ h1 {
 @media (max-width: 900px) {
   .card-stack-container {
     width: 100%;
-    height: 420px;
+    height: auto;
   }
 
   .card {
