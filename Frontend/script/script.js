@@ -58,7 +58,12 @@ function initializeBoard() {
     card.addEventListener("click", function (e) {
       if (!e.target.classList.contains("card-btn")) {
         setActiveCard(parseInt(card.dataset.index));
-        openModal(currentQuotes[parseInt(card.dataset.index)]);
+
+        // Use full text from dataset
+        openModal({
+          text: card.dataset.fullText,
+          author: card.dataset.fullAuthor,
+        });
       }
     });
 
@@ -130,15 +135,15 @@ function setActiveCard(index) {
 // Fetch a random quote from API
 async function fetchNewQuote() {
   try {
-    const res = await fetch(
-      "https://api.allorigins.win/raw?url=https://zenquotes.io/api/random"
-    );
+    const res = await fetch("https://api.api-ninjas.com/v1/quotes", {
+      headers: { "X-Api-Key": "MyTM3fbb//ShyLimqcUw2Q==gRLoJJNtchRqBWfZ" },
+    });
     if (!res.ok) throw new Error("API request failed");
 
     const [data] = await res.json();
     return {
-      text: data.q,
-      author: data.a,
+      text: data.quote,
+      author: data.author || "Unknown",
       category: "API",
     };
   } catch (error) {
@@ -148,9 +153,14 @@ async function fetchNewQuote() {
   }
 }
 
-// Replace a quote
+// Replace a quote with loading state
 async function getNewQuote(index) {
   event.stopPropagation(); // Prevent card click event
+
+  // Show loading
+  const card = cards[index];
+  card.querySelector(".card-quote").textContent = "Loading...";
+  card.querySelector(".card-author").textContent = "";
 
   const newQuote = await fetchNewQuote();
   currentQuotes[index] = newQuote;
@@ -158,16 +168,28 @@ async function getNewQuote(index) {
   updateCardContent(index, newQuote);
 }
 
-// Update card content
+// Update card content (with truncation)
 function updateCardContent(index, quote) {
   const card = cards[index];
-  card.querySelector(".card-quote").textContent = `"${quote.text}"`;
+  const truncatedText =
+    quote.text.length > 20 ? quote.text.slice(0, 50) + "..." : quote.text;
+
+  // Show truncated on card
+  card.querySelector(".card-quote").textContent = `"${truncatedText}"`;
   card.querySelector(".card-author").textContent = `- ${quote.author}`;
+
+  // Store full text in dataset for modal use
+  card.dataset.fullText = quote.text;
+  card.dataset.fullAuthor = quote.author;
 }
 
-// Fetch new quotes for all cards
+// Fetch new quotes for all cards with loading
 async function fetchAllNewQuotes() {
   for (let i = 0; i < cards.length; i++) {
+    // Show loading state
+    cards[i].querySelector(".card-quote").textContent = "Loading...";
+    cards[i].querySelector(".card-author").textContent = "";
+
     const newQuote = await fetchNewQuote();
     currentQuotes[i] = newQuote;
     updateCardContent(i, newQuote);
@@ -176,14 +198,12 @@ async function fetchAllNewQuotes() {
 
 // Shuffle the stack order
 function shuffleStack() {
-  // Create an array of indices and shuffle them
   const indices = [...Array(cards.length).keys()];
   for (let i = indices.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [indices[i], indices[j]] = [indices[j], indices[i]];
   }
 
-  // Apply new z-index order
   indices.forEach((cardIndex, zIndex) => {
     cards[cardIndex].style.zIndex = cards.length - zIndex;
   });
@@ -191,18 +211,15 @@ function shuffleStack() {
 
 // Add quote to favorites
 function addToFavorites(index) {
-  event.stopPropagation(); // Prevent card click event
+  event.stopPropagation();
 
   const quote = currentQuotes[index];
   let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-  // Prevent duplicate entries
   if (!favorites.some((fav) => fav.text === quote.text)) {
     favorites.push(quote);
     localStorage.setItem("favorites", JSON.stringify(favorites));
     displayFavorites();
-
-    // Show confirmation
     alert(`"${quote.text}" added to favorites!`);
   } else {
     alert("This quote is already in your favorites!");
@@ -224,10 +241,10 @@ function displayFavorites() {
     const favoriteItem = document.createElement("div");
     favoriteItem.className = "favorite-item";
     favoriteItem.innerHTML = `
-                          <p style="font-size: 1.2rem; margin-bottom: 15px; font-style: italic;">"${fav.text}"</p>
-                          <p style="font-weight: 600; text-align: right; color: #4361ee;">- ${fav.author}</p>
-                          <button class="card-btn like-btn" style="margin-top: 20px; width: 100%;" onclick="removeFavorite(${index})">Remove</button>
-                      `;
+      <p style="font-size: 1.2rem; margin-bottom: 15px; font-style: italic;">"${fav.text}"</p>
+      <p style="font-weight: 600; text-align: right; color: #4361ee;">- ${fav.author}</p>
+      <button class="card-btn like-btn" style="margin-top: 20px; width: 100%;" onclick="removeFavorite(${index})">Remove</button>
+    `;
     favoritesList.appendChild(favoriteItem);
   });
 }
@@ -257,6 +274,9 @@ function closeModalHandler() {
 closeModal.addEventListener("click", closeModalHandler);
 
 modalNewBtn.addEventListener("click", async function () {
+  modalQuote.textContent = "Loading...";
+  modalAuthor.textContent = "";
+
   const newQuote = await fetchNewQuote();
   openModal(newQuote);
   currentQuotes[activeCardIndex] = newQuote;
