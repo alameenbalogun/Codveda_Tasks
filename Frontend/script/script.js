@@ -8,6 +8,9 @@ const closeModal = document.getElementById("close-modal");
 const modalNewBtn = document.getElementById("modal-new-btn");
 const modalLikeBtn = document.getElementById("modal-like-btn");
 
+document.body.classList.add("card-open"); // when open
+document.body.classList.remove("card-open"); // when closed
+
 // Sample quotes data (fallback)
 const defaultQuotes = [
   {
@@ -159,7 +162,7 @@ async function getNewQuote(index) {
 
   // Show loading
   const card = cards[index];
-  card.querySelector(".card-quote").textContent = "Loading...";
+  card.querySelector(".card-quote").innerHTML = `<div class="loader"></div>`;
   card.querySelector(".card-author").textContent = "";
 
   const newQuote = await fetchNewQuote();
@@ -187,7 +190,9 @@ function updateCardContent(index, quote) {
 async function fetchAllNewQuotes() {
   for (let i = 0; i < cards.length; i++) {
     // Show loading state
-    cards[i].querySelector(".card-quote").textContent = "Loading...";
+    cards[i].querySelector(
+      ".card-quote"
+    ).innerHTML = `<div class="loader"></div>`;
     cards[i].querySelector(".card-author").textContent = "";
 
     const newQuote = await fetchNewQuote();
@@ -274,7 +279,7 @@ function closeModalHandler() {
 closeModal.addEventListener("click", closeModalHandler);
 
 modalNewBtn.addEventListener("click", async function () {
-  modalQuote.textContent = "Loading...";
+  modalQuote.innerHTML = `<div class="loader"></div>`;
   modalAuthor.textContent = "";
 
   const newQuote = await fetchNewQuote();

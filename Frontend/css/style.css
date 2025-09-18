@@ -35,6 +35,26 @@ body {
   padding: 0 20px;
 }
 
+/* Loader animation */
+.loader {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto; /* center on screen */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* NEW HEADER STYLES */
 header {
   position: relative;
@@ -56,6 +76,30 @@ header {
   height: 100%;
   z-index: -1;
   opacity: 0.15;
+}
+
+/* Expanded card (when clicked) */
+.card.open {
+  position: fixed; /* stick it on top of everything */
+  top: 0;
+  left: 0;
+  width: 100vw; /* full screen width */
+  height: 100vh; /* full screen height */
+  max-height: 100vh; /* prevent overflow off screen */
+  background: #fff; /* make sure background is solid */
+  z-index: 9999; /* above the stack */
+  border-radius: 0; /* flat edges on mobile */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* 🔑 allow vertical scroll */
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+  padding: 16px; /* breathing room for content */
+  box-sizing: border-box;
+}
+
+/* Optional: lock body scroll when card is open */
+body.card-open {
+  overflow: hidden;
 }
 
 .header-background::before {
