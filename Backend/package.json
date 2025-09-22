@@ -1,0 +1,14 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "codveda backend tasks",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Al-ameen",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
